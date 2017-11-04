@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.tedu.ttms.product.dao.ProDao">
+	<!-- 动态sql -->
+	<sql id="whereSql">
+	   <where>
+	        <if test="name!=null and name!=''">
+	           name like concat("%",#{name},"%")
+	        </if>
+	        <if test="valid!=null">
+               and valid=#{valid}
+            </if>
+	    </where>
+	</sql>
+	
+	<select id="findObjects" 
+	        resultType="cn.tedu.ttms.product.entity.Project">
+	    select * from tms_projects
+	    <include refid="whereSql"/>
+	    order by createdTime desc
+	    limit #{startIndex},#{pageSize}
+	</select>
+	
+	<select id="getRowCount"
+	        resultType="int">
+	    select count(*) from tms_projects    
+	    <include refid="whereSql"/>
+	</select>
+	
+	<update id="validById">
+	    update tms_projects
+	    set valid=#{valid}
+	    where id in
+	    <foreach collection="ids"
+	             open="("
+	             close=")"
+	             item="item"
+	             separator=",">
+	             #{item}
+	    </foreach>
+	</update>
+	
+	<!-- 添加数据 -->
+	<insert id="insertProject">
+	    insert into tms_projects
+	    (code,name,beginDate,endDate,valid,note,createdTime,modifiedTime,createdUser,modifiedUser)
+	    values
+	    (#{code},
+	     #{name},
+	     #{beginDate},
+	     #{endDate},
+	     #{valid},
+	     #{note},
+	     #{createdTime},
+	     #{modifiedTime},
+	     #{createdUser},
+	     #{modifiedUser})
+	</insert>
+	
+	<!-- 修改数据 -->
+	<update id="updateProject">
+        update tms_projects	  
+        set code=#{code},
+            name=#{name},
+            valid=#{valid},
+            note=#{note},
+            beginDate=#{beginDate},
+            endDate=#{endDate},
+            modifiedTime=now(),
+            modifiedUser=#{modifiedUser}
+        where id=#{id}    
+	</update>
+	
+	<!-- 根据id查找 -->
+	<select id="findById" resultType="project">
+	    select * from tms_projects
+	    where id=#{id}
+	</select>
+	
+	
+</mapper>
